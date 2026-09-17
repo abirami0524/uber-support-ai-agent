@@ -1,13 +1,9 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
-import time
-from openai import OpenAI, RateLimitError
+from groq import Groq
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY")
-)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 INTENTS = [
     "fare_billing_dispute",
@@ -39,44 +35,22 @@ Message: "{message}"
 Respond with ONLY the intent label, nothing else. No explanation, no punctuation."""
 
 
-def _call_with_retry(messages, max_tokens, max_retries=5):
-    """Handles OpenRouter's free-tier shared-pool overload errors (429)
-    by waiting and retrying, since these are transient, not real quota
-    exhaustion (unlike Groq's daily cap)."""
-    for attempt in range(max_retries):
-        try:
-            return client.chat.completions.create(
-                model="z-ai/glm-5.2:free",
-                messages=messages,
-                max_tokens=max_tokens
-            )
-        except RateLimitError as e:
-            wait = 6  # OpenRouter's free pool typically suggests ~5s
-            print(f"  [retry {attempt+1}/{max_retries}] provider overloaded, waiting {wait}s...")
-            time.sleep(wait)
-    raise RuntimeError("Exceeded max retries due to persistent rate limiting.")
-
-
 def classify(message: str) -> str:
     prompt = PROMPT_TEMPLATE.format(message=message)
-    resp = _call_with_retry(
+    resp = client.chat.completions.create(
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=300
+        max_tokens=20
     )
-
     content = resp.choices[0].message.content
-
     if not content:
         return "general_complaint"
-
     label = content.strip().lower()
-
     if label not in INTENTS:
         for intent in INTENTS:
             if intent in label:
                 return intent
         return "general_complaint"
-
     return label
 
 
@@ -86,7 +60,6 @@ if __name__ == "__main__":
         "My driver was driving recklessly and almost hit another car, I'm scared",
         "I left my phone in the Uber, please help me get it back"
     ]
-
     print("--- Quick test ---")
     for msg in test_messages:
         label = classify(msg)

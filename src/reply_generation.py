@@ -11,13 +11,14 @@ REPLY_PROMPT_TEMPLATE = """You are a customer support agent for Uber, responding
 Here are examples of how Uber has historically responded to similar rider complaints:
 {examples}
 
-Now, write a helpful, empathetic, and specific reply to this NEW rider message. Keep it concise (1-3 sentences), professional, and in Uber's typical tone. Do not just copy a generic template — try to be genuinely responsive to the specifics of this message where possible.
+Now, write a helpful, empathetic, and specific reply to this NEW rider message. Keep it concise (1-3 sentences), professional, and in Uber's typical tone. Do not just copy a generic template - try to be genuinely responsive to the specifics of this message where possible.
 
 New rider message: "{message}"
 
 Reply:"""
 
-def generate_reply(message: str, k: int = 3) -> dict:
+
+def generate_reply(message: str, k: int = 2) -> dict:
     retrieval_results = retrieve_similar(message, k=k)
 
     examples_text = ""
@@ -28,10 +29,12 @@ def generate_reply(message: str, k: int = 3) -> dict:
 
     resp = client.chat.completions.create(
         model="openai/gpt-oss-20b",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=150
     )
 
-    reply = resp.choices[0].message.content.strip()
+    content = resp.choices[0].message.content
+    reply = content.strip() if content else "We're sorry for the trouble! Please send us a note so our team can help."
 
     return {
         "reply": reply,
@@ -40,6 +43,7 @@ def generate_reply(message: str, k: int = 3) -> dict:
             for meta in retrieval_results['metadatas'][0]
         ]
     }
+
 
 if __name__ == "__main__":
     test_messages = [

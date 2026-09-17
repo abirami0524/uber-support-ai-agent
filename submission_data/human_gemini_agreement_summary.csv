@@ -1,0 +1,11 @@
+metric,value
+Overall Agreement,96.66666666666667
+Overall Cohen Kappa,1.0
+Relevance Agreement,90.0
+Relevance Cohen Kappa,0.8509933774834437
+Grounding Agreement,90.0
+Grounding Cohen Kappa,0.8466780238500852
+Helpfulness Agreement,100.0
+Helpfulness Cohen Kappa,1.0
+Safety Agreement,100.0
+Safety Cohen Kappa,1.0
