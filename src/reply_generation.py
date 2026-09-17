@@ -2,8 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 from groq import Groq
-from src_retrieval import retrieve_similar
-
+from src.src_retrieval import retrieve_similar
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 REPLY_PROMPT_TEMPLATE = """You are a customer support agent for Uber, responding to a rider's message on Twitter.

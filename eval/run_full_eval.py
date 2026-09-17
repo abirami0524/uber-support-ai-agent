@@ -1,9 +1,16 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import sys
+import os
+
+# Add project root to Python path so src/ can be imported
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 import time
 import pandas as pd
-from pipeline import process_message
+from src.pipeline import process_message
+
 
 # --------------------------------------------------
 # Load golden dataset
@@ -17,6 +24,7 @@ labeled = df[
     df['intent'].notna() &
     (df['intent'].str.strip() != "")
 ].copy()
+
 
 # --------------------------------------------------
 # Load already completed results
@@ -66,7 +74,6 @@ for position, (i, row) in enumerate(
 
         # --------------------------------------------------
         # SAVE AFTER EVERY SUCCESSFUL ROW
-        # This prevents losing progress if Groq stops again.
         # --------------------------------------------------
         results_df = pd.DataFrame(results)
         results_df.to_csv(results_file, index=False)
@@ -86,6 +93,7 @@ for position, (i, row) in enumerate(
 # Final results
 # --------------------------------------------------
 results_df = pd.DataFrame(results)
+
 
 # --------------------------------------------------
 # Metrics
@@ -154,6 +162,7 @@ print(
 )
 
 print(f"Confusion: TP={tp} FP={fp} FN={fn} TN={tn}")
+
 
 # --------------------------------------------------
 # Final save

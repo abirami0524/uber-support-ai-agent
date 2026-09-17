@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 load_dotenv()
-from classify_intent import classify
-from reply_generation import generate_reply
-from escalation import decide_escalation
+from src.classify_intent import classify
+from src.reply_generation import generate_reply
+from src.escalation import decide_escalation
 
 def process_message(message: str) -> dict:
     """
